@@ -91,7 +91,7 @@ var getLedgerInfo = function(callBk) {
 		return;
 	}
 	try {
-		var currHeight = ledgerData.chain.height;
+		var currHeight = ledgerData.chain.height.low;
 		peerIntf.chain(
 			function(obj) {
 				ledgerData.chain = obj;
@@ -101,8 +101,8 @@ var getLedgerInfo = function(callBk) {
 						//console.log('height : '+ledgerData.chain.height);
 						if(initial) {
 							var start = 0;
-							if (ledgerData.chain.height > 100)
-								start = ledgerData.chain.height - 99;
+							if (ledgerData.chain.height.low > 100)
+								start = ledgerData.chain.height.low - 99;
 							//dont load all the blocks. only the latest 100.
 							for (var i = 0; i < start; i++)
 								ledgerData.blocks.push(null);
@@ -116,13 +116,13 @@ var getLedgerInfo = function(callBk) {
 								ledgerData.blocks[ledgerData.blocks.length - 101] = null;
 							}
 							currHeight = ledgerData.blocks.length;
-							if(currHeight == ledgerData.chain.height) {
+							if(currHeight == ledgerData.chain.height.low) {
 								callBk(ledgerData);
 								locked = false;
 							} else
 								peerIntf.block((currHeight++),blockFunc);
 						}
-						if(currHeight != ledgerData.chain.height)
+						if(currHeight != ledgerData.chain.height.low)
 							peerIntf.block(currHeight,blockFunc);
 
 					}
@@ -148,15 +148,15 @@ getLedgerInfo( function () {
 		setInterval(
 			function() {
 				var prevPeers = ledgerData.peers;
-				var prevHeight = ledgerData.chain.height;
+				var prevHeight = ledgerData.chain.height.low;
 				var newData = {};
 				getLedgerInfo( function() {
 					if(JSON.stringify(prevPeers) != JSON.stringify(ledgerData.peers))
 						newData.peers = ledgerData.peers;
-					if(prevHeight != ledgerData.chain.height) {
+					if(prevHeight != ledgerData.chain.height.low) {
 						newData.chain = ledgerData.chain;
 						newBlocks = new Array();
-						for(var i = prevHeight; i < ledgerData.chain.height; i++)
+						for(var i = prevHeight; i < ledgerData.chain.height.low; i++)
 							newBlocks.push(ledgerData.blocks[i]);
 						newData.blocks = newBlocks;
 					}
@@ -193,7 +193,7 @@ getLedgerInfo( function () {
 					"blkRateGraph":blkRateGraph
 				};
 
-				for (var i = ledgerData.chain.height - 1; i > 0; i--) {
+				for (var i = ledgerData.chain.height.low - 1; i > 0; i--) {
 					if(txRateGraph.time.length == 20)
 						break;
 					var block = ledgerData.blocks[i];
